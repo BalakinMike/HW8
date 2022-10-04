@@ -18,8 +18,11 @@ class YandexDisk:
     def _get_upload_link(self, ya_disk_path: str):
         params = {"path": ya_disk_path, "overwrite": "true"}
         response = requests.get(self.URL_UPLOAD_LINK, headers=self.header, params=params)
+        
+        if response.status_code != 200:
+            raise requests.exceptions.RequestException
+        
         upload_url = response.json().get("href")
-
         return upload_url
 
     def uploader(self, ya_disk_path: str, file_path: str):
@@ -28,6 +31,14 @@ class YandexDisk:
             response = requests.put(upload_link, data=file_obj)
             if response.status_code == 201:
                 print('Успешно загрузили')
+            elif response.status_code == 412:
+                print('При дозагрузке файла был передан неверный диапазон в заголовке Content-Range')
+            elif response.status_code == 413:
+                print('Размер файла больше допустимого.\n' \
+                   'Если у вас есть подписка на Яндекс 360, можно загружать файлы размером до 50 ГБ,\n' \
+                   'если подписки нет — до 1 ГБ.')
+            elif response.status_code == 507:
+                print('Для загрузки файла не хватает места на Диске пользователя.')
         return response.status_code
 
 if __name__ == '__main__':

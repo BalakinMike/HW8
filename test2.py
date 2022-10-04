@@ -1,23 +1,18 @@
+from itertools import count
 import requests, json
-from pprint import pprint
 
-
-urls = [
-    f'https://akabab.github.io/superhero-api/api/id/332.json',
-    f'https://akabab.github.io/superhero-api/api/id/149.json',
-    f'https://akabab.github.io/superhero-api/api/id/655.json',
-]  # список адресов
 
 dict = {}
 hero_intellect = {}
-response = requests.get('https://akabab.github.io/superhero-api/api/id/332.json')
-dict = response.json()
-pprint(dict)
-hero_intellect[dict['powerstats']['intelligence']] = dict['name']
+
+for count in range (147,732):
+    response = requests.get(f'https://akabab.github.io/superhero-api/api/id/{count}.json')
+    if response.status_code == 200:
+        dict = response.json()
+        if dict['name'] == 'Hulk' or dict['name'] == 'Captain America' or dict['name'] == 'Thanos':
+            print(dict['name'])
+            hero_intellect[dict['name']] = dict['powerstats']['intelligence'] # Делаем ещё один словарик с именем и интеллектом
 
 
-
-# requests_get('https://akabab.github.io/superhero-api/api/id/332.json')
-
-            
-pprint(hero_intellect)
+print(hero_intellect)
+print('Самый умный из героев Марвел: ', max(hero_intellect, key=hero_intellect.get)) # Выбор ключа по максимальному значению
